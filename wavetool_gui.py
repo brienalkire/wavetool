@@ -26,11 +26,17 @@ class FaultTolerantTk(tk.Tk):
         messagebox.showerror('Error!', val)
 
 #### STRUCTURE OF THE CODE ####
-# There are separate tabs Here's a summary of the tabs:
-#  Tab 0: provides information about the application, including revision.
-#  
+# There are 3 menus. Here's a summary of the menus:
+#  File: has items for opening and closing wavefiles, and exiting the app.
+#  Processing: once a wave file has been opened, this mention provides items for
+#   for processing. Some processing options only work if the file is mono, 
+#   and some only for stereo, and some for both.
+#  Help: this menu has help related items, including an "About" item to 
+#   display revision information.
 #
-# The purpose of this code is to 
+# The purpose of this code is to provide tools for manipulating wavefiles, mostly
+# for audio engineering purposes. For instance, you can take a stereo file and
+# split it into two mono files. Or you can do some filtering.
 #
 # This code uses exception handling for trapping errors. There is a 
 # callback exception handler implemented in
