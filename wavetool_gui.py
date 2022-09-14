@@ -12,11 +12,18 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
 from tkinter.filedialog import asksaveasfile
+from tkinter import filedialog as fd
+
+# The custom package with the audio file tools and associated math
+import wavetool as wt
 
 # Constants and global variables
 strRevHistory='Wavetool, by Brien Alkire. Revision 13 Sep 2022.'
 bStereoFileOpen=FALSE
 bMonoFileOpen=FALSE
+bFilterDesigned=FALSE
+filename_open1=''
+Wavefile1 = wt.AudioFile()
 
 # Other misc packages
 
@@ -54,9 +61,25 @@ tabControl = ttk.Notebook(root)
 
 #################### FILE MENU FUNCTIONS ##############
 def file_open():
-    global bMonoFileOpen, bStereoFileOpen
-    bMonoFileOpen=TRUE
-    bStereoFileOpen=FALSE
+    global bMonoFileOpen, bStereoFileOpen, filename_open1, Wavefile1
+    
+    filetypes = (
+        ('Wave files', '*.wav'),
+        ('All files', '*.*')
+    )
+
+    filename_open1 = fd.askopenfilename(
+        title='Open a file',
+#        initialdir='/',
+        filetypes=filetypes)
+    
+    Wavefile1.read_wavefile(filename_open1)
+    if 2 == Wavefile1.m_numchannels:
+        bStereoFileOpen=TRUE
+    elif 1 == Wavefile1.m_numchannels:
+        bMonoFileOpen=TRUE
+    else:
+        raise ValueError('The wave file has an invalid number of channels.')
     set_menu_states()
     return
 
@@ -68,7 +91,9 @@ def file_close():
 
 #################### PROCESSING MENU FUNCTIONS ##########
 def processing_stereotomono():
-    print("processing_stereotomono")
+    filename_left=Wavefile1.append_filename_tag(filename_open1,'_Left')
+    filename_right=Wavefile1.append_filename_tag(filename_open1,'_Right')
+    Wavefile1.stereo_to_mono(filename_left, filename_right)
     return
 
 def processing_monotostereo():
@@ -79,8 +104,19 @@ def processing_midsideprocessing():
     print('processing_midsideprocessing')
     return
 
-def processing_rumblefilter():
-    print('processing_rumblefilter')
+def processing_designrumblefilter():
+    global bFilterDesigned
+    bFilterDesigned=TRUE
+    print('processing_designrumblefilter')
+    set_menu_states()
+    return
+
+def processing_applyfilter():
+    print('processing_applyfilter')
+    return
+
+################### FILTERING MENU FUNCTIONS ###########
+def dummycommand():
     return
 
 #################### ABOUT MENU FUNCTIONS #############
@@ -128,12 +164,24 @@ processing_menu.add_command(label='Mono (x2) to Stereo',
 processing_menu.add_command(label='Mid-side Processing',
                             command=processing_midsideprocessing,
                             state=DISABLED)
-processing_menu.add_command(label='Rumble Filter',
-                            command=processing_rumblefilter,
-                            state=DISABLED)
+
 menubar.add_cascade(
     label="Processing",
     menu=processing_menu)
+
+# CREATE CASCADED FILTER MENU
+filtering_menu=Menu(
+    processing_menu,
+    tearoff=0)
+
+filtering_menu.add_command(label='Design Rumble Filter',
+                           command=processing_designrumblefilter,
+                           state=DISABLED)
+filtering_menu.add_command(label='Apply Filter',
+                           command=processing_applyfilter,
+                           state=DISABLED)
+processing_menu.add_cascade(label='Filtering',
+                            menu=filtering_menu)
 
 # CREATE HELP MENU
 help_menu = Menu(
@@ -168,6 +216,12 @@ def set_menu_states():
         processing_menu.entryconfig(1,state=DISABLED)
         processing_menu.entryconfig(2,state=DISABLED)
         processing_menu.entryconfig(3,state=DISABLED)
+    if FALSE == bFilterDesigned:
+        filtering_menu.entryconfig(0,state='normal')
+        filtering_menu.entryconfig(1,state=DISABLED)
+    else:
+        filtering_menu.entryconfig(0,state='normal')
+        filtering_menu.entryconfig(1,state='normal')
     return
         
 set_menu_states()
