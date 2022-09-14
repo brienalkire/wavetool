@@ -91,8 +91,25 @@ def file_close():
 
 #################### PROCESSING MENU FUNCTIONS ##########
 def processing_stereotomono():
+    files = [('Wave Files', '*.wav'), 
+             ('All Files', '*.*')]
     filename_left=Wavefile1.append_filename_tag(filename_open1,'_Left')
     filename_right=Wavefile1.append_filename_tag(filename_open1,'_Right')
+    filename_left = fd.asksaveasfilename(filetypes = files, 
+                         defaultextension = files,
+                         initialfile=filename_left,
+                         title='Left Channel Filename')
+    if 0 >= len(filename_left):
+        return
+
+    filename_right = fd.asksaveasfilename(filetypes = files, 
+                         defaultextension = files,
+                         initialfile=filename_right,
+                         title='Right Channel Filename')   
+
+    if 0 >= len(filename_right):
+        return
+
     Wavefile1.stereo_to_mono(filename_left, filename_right)
     return
 

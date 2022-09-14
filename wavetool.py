@@ -57,9 +57,9 @@ INPUTS:
     tag - (str) the tag to append.
 OUTPUTS:
     (str) the new filename."""         
-        index=filename.rfind('.')-1
+        index=filename.rfind('.')
         if 0 < index:
-            newfilename=filename[0:index]+tag+filename[index+1:len(filename)]
+            newfilename=filename[0:index]+tag+filename[index:len(filename)]
         else:
             newfilename=filename+tag
         return newfilename
