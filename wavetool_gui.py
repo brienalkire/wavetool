@@ -81,6 +81,7 @@ def file_open():
     else:
         raise ValueError('The wave file has an invalid number of channels.')
     set_menu_states()
+    display_wavefile_info()
     return
 
 def file_close():
@@ -261,6 +262,18 @@ menubar.add_cascade(
 )
 
 #################### UTILITY FUNCTIONS #################
+
+def display_wavefile_info():
+    global Wavefile1,filename_open1
+    text_tk = Text ( root )
+    text_tk.insert(INSERT, "Filename:\n\t"+filename_open1)
+                   
+    text_tk.insert(END, "\n\nNum channels: "+str(Wavefile1.m_numchannels))
+    text_tk.insert(END,"\nNum samples: "+str(Wavefile1.m_numsamples))
+    text_tk.insert(END,"\nSample Rate (Hz): "+str(Wavefile1.m_samplerate_Hz))
+
+    text_tk.insert(END,"\nDuration (sec): "+str(Wavefile1.m_duration_s))
+    text_tk.pack()
 
 def set_menu_states():
     if TRUE == bStereoFileOpen or TRUE==bMonoFileOpen:

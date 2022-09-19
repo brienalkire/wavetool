@@ -27,7 +27,7 @@ DESCRIPTION\n
 A constructor for the AudioFile class.\n
 INPUTS: None.
 OUTPUTS: None."""
-        self.m_samplerate=0
+        self.m_samplerate_Hz=0
         self.m_data=np.zeros(1)
 
     # Read a wavefile and populate the AudioFile data
