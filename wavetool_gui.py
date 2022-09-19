@@ -114,7 +114,38 @@ def processing_stereotomono():
     return
 
 def processing_monotostereo():
-    print('processing_monotostereo')
+    global Wavefile1
+    Wavefile2=wt.AudioFile()
+    filetypes = (
+        ('Wave files', '*.wav'),
+        ('All files', '*.*')
+    )
+
+    # Get the filename for the second wavefile and open it
+    filename_open2 = fd.askopenfilename(
+        title='Open a file',
+#        initialdir='/',
+        filetypes=filetypes)
+    
+    Wavefile2.read_wavefile(filename_open2)
+    if 1 != Wavefile2.m_numchannels:
+        raise ValueError('The wave file is not mono.')
+        
+    # Get the filename for the stereo results
+    filename_stereo = fd.asksaveasfilename(filetypes = filetypes, 
+                         defaultextension = ".wav",
+                         initialfile="stereo.wav",
+                         title='Filename for Stereo File')
+    if 0 >= len(filename_stereo):
+        return
+
+    # Write the wavefile
+    Wavefile1.mono_to_stereo(
+        filename_stereo,
+        Wavefile1.m_samplerate_Hz,
+        Wavefile1.m_data,
+        Wavefile2.m_data)
+
     return
 
 def processing_midsideprocessing():
