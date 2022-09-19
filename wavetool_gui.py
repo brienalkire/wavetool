@@ -115,6 +115,10 @@ def processing_stereotomono():
 
 def processing_monotostereo():
     global Wavefile1
+    
+    answer = messagebox.askyesno("Left and Right Channel Selection",
+                                 "Is the current file the left channel (channel 1)? Answer 'no' if it is the right channel (channel 2).")
+
     Wavefile2=wt.AudioFile()
     filetypes = (
         ('Wave files', '*.wav'),
@@ -122,8 +126,12 @@ def processing_monotostereo():
     )
 
     # Get the filename for the second wavefile and open it
+    if True == answer:
+        msg='Open file for the right channel (channel 2)'
+    else:
+        msg='Open file for the left channel (channel 1)'
     filename_open2 = fd.askopenfilename(
-        title='Open a file',
+        title=msg,
 #        initialdir='/',
         filetypes=filetypes)
     
@@ -140,12 +148,19 @@ def processing_monotostereo():
         return
 
     # Write the wavefile
-    Wavefile1.mono_to_stereo(
-        filename_stereo,
-        Wavefile1.m_samplerate_Hz,
-        Wavefile1.m_data,
-        Wavefile2.m_data)
-
+    if True == answer:
+        Wavefile1.mono_to_stereo(
+            filename_stereo,
+            Wavefile1.m_samplerate_Hz,
+            Wavefile1.m_data,
+            Wavefile2.m_data)
+    elif False == answer:
+        Wavefile1.mono_to_stereo(
+            filename_stereo,
+            Wavefile1.m_samplerate_Hz,
+            Wavefile2.m_data,
+            Wavefile1.m_data)
+        
     return
 
 def processing_midsideprocessing():
