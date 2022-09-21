@@ -88,6 +88,7 @@ def file_close():
     global bMonoFileOpen, bStereoFileOpen
     bMonoFileOpen=FALSE
     bStereoFileOpen=FALSE
+    display_wavefile_info()
     set_menu_states()
 
 #################### PROCESSING MENU FUNCTIONS ##########
@@ -264,15 +265,28 @@ menubar.add_cascade(
 #################### UTILITY FUNCTIONS #################
 
 def display_wavefile_info():
-    global Wavefile1,filename_open1
-    text_tk = Text ( root )
-    text_tk.insert(INSERT, "Filename:\n\t"+filename_open1)
-                   
-    text_tk.insert(END, "\n\nNum channels: "+str(Wavefile1.m_numchannels))
-    text_tk.insert(END,"\nNum samples: "+str(Wavefile1.m_numsamples))
+    global Wavefile1,filename_open1,text_tk
+    
+#    text_tk=Text(root)
+    
+    # If no file is open, clear the information and return
+    if FALSE == bStereoFileOpen and FALSE == bMonoFileOpen:
+        text_tk.delete('1.0',END)
+        return
+    
+    # Trim the path from the filename for brevity is the soul of wit
+    if 0 > filename_open1.rfind('/'):
+        short_filename=filename_open1
+    else:
+        short_filename=filename_open1[filename_open1.rfind('/')+1:len(filename_open1)]
+    
+    # Display text information about the open wavefile
+    text_tk.insert(INSERT, "Filename: " + short_filename)
+    text_tk.insert(END, "\nNum channels: "+str(Wavefile1.m_numchannels))
     text_tk.insert(END,"\nSample Rate (Hz): "+str(Wavefile1.m_samplerate_Hz))
-
-    text_tk.insert(END,"\nDuration (sec): "+str(Wavefile1.m_duration_s))
+    text_tk.insert(END,"\nFormat: "+str(Wavefile1.m_data.dtype))
+    text_tk.insert(END,"\nNum samples: "+str(Wavefile1.m_numsamples))
+    text_tk.insert(END,f"\nDuration (sec): {Wavefile1.m_duration_s:.2f}")
     text_tk.pack()
 
 def set_menu_states():
@@ -299,7 +313,8 @@ def set_menu_states():
         filtering_menu.entryconfig(0,state='normal')
         filtering_menu.entryconfig(1,state='normal')
     return
-        
+
+text_tk=Text(root)        
 set_menu_states()
 tabControl.pack(expand=1, fill="both")
 root.mainloop() 
