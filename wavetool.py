@@ -5,6 +5,7 @@ Created on Wed Sep 14 10:40:46 2022
 @author: Brien Alkire
 """
 from scipy.io import wavfile
+from scipy import signal
 import scipy.io
 import numpy as np
 
@@ -110,4 +111,14 @@ OUTPUTS:
         else:
             newfilename=filename+tag
         return newfilename
-                
+
+    # Design an ellipical IIR rumble filter
+    def design_rumble_filter(self)->None:
+        """NAME\n\tdesign_rumble_filter\n
+DESCRIPTION\n
+Design an ellipitcal IIR rumble filter (high-pass).
+INPUTS: None.
+OUTPUTS: None."""
+        b, a = signal.ellip(4, 5, 40, 100, 'low', analog=True)
+        w, h = signal.freqs(b, a)
+

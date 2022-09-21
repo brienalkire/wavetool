@@ -170,9 +170,9 @@ def processing_midsideprocessing():
     return
 
 def processing_designrumblefilter():
-    global bFilterDesigned
+    global bFilterDesigned,Wavefile1
     bFilterDesigned=TRUE
-    print('processing_designrumblefilter')
+    Wavefile1.design_rumble_filter()
     set_menu_states()
     return
 
