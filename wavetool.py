@@ -9,6 +9,46 @@ from scipy import signal
 import scipy.io
 import numpy as np
 
+class AudioFilter:
+    """NAME\n\tAudioFilter\n
+DESCRIPTION\n
+An object with methods and members for filtering audio data."""
+
+    # Constructor    
+    def __init__(self)->None:
+        """ NAME\n\t__init__\n
+DESCRIPTION\n
+A constructor for the AudioFilter class.\n
+INPUTS: None.
+OUTPUTS: None."""
+        self.m_passbandedgefrequency_Hz=0
+        self.m_stopbandedgefrequency_Hz=0
+        self.m_ripple_dB=0.5
+        self.m_stopbandattenuation_dB=60
+        self.m_b=0
+        self.m_a=0
+        self.m_w=0
+        self.m_h=0
+        
+    # Design a high-pass rumble filter
+    def design_rumble_filter(self,samplerate_Hz: float)->None:
+        """NAME\n\tdesign_rumble_filter\n
+DESCRIPTION\n
+Design an ellipitcal IIR rumble filter (high-pass).
+INPUTS: None.
+OUTPUTS: None."""
+        ws=2*self.m_stopbandedgefrequency_Hz/samplerate_Hz # Stop band edge frequency in cycles per sample ON SCALE OF 0 TO 1 (not 0 to 0.5)
+        wp=2*self.m_passbandedgefrequency_Hz/samplerate_Hz # Pass band cutoff frequency in cycles per sample ON SCALE OF 0 TO 1 (not 0 to 0.5)
+
+        n,wc=signal.ellipord(wp,ws,self.m_ripple_dB,self.m_stopbandattenuation_dB) # Determine the filter order
+        self.m_b, self.m_a = signal.ellip (n, self.m_ripple_dB, self.m_stopbandattenuation_dB, wc,"high") # Design the coefficients
+
+        # Get the sample response
+        self.m_w,self.m_h=signal.freqz(self.m_b,self.m_a,2**16)    
+
+        return
+ 
+
 class AudioFile:
     """NAME\n\tAudioFile\n
 DESCRIPTION\n
@@ -33,7 +73,7 @@ OUTPUTS: None."""
 
     # Read a wavefile and populate the AudioFile data
     def read_wavefile(self,filename: str)->None:
-        """ Name\n\tread_wavefile\n
+        """ NAME\n\tread_wavefile\n
 DESCRIPTION\n
 Opens a wavefile, reads the contents and populates the AudioFile data.\n
 INPUTS:
@@ -112,13 +152,6 @@ OUTPUTS:
             newfilename=filename+tag
         return newfilename
 
-    # Design an ellipical IIR rumble filter
-    def design_rumble_filter(self)->None:
-        """NAME\n\tdesign_rumble_filter\n
-DESCRIPTION\n
-Design an ellipitcal IIR rumble filter (high-pass).
-INPUTS: None.
-OUTPUTS: None."""
-        b, a = signal.ellip(4, 5, 40, 100, 'low', analog=True)
-        w, h = signal.freqs(b, a)
+
+
 

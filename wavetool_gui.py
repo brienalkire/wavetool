@@ -13,6 +13,9 @@ from tkinter import ttk
 from tkinter import messagebox
 from tkinter.filedialog import asksaveasfile
 from tkinter import filedialog as fd
+from tkinter import simpledialog
+import matplotlib.pyplot as plt
+import numpy as np
 
 # The custom package with the audio file tools and associated math
 import wavetool as wt
@@ -24,6 +27,7 @@ bMonoFileOpen=FALSE
 bFilterDesigned=FALSE
 filename_open1=''
 Wavefile1 = wt.AudioFile()
+Filter1=wt.AudioFilter()
 
 # Other misc packages
 
@@ -170,9 +174,78 @@ def processing_midsideprocessing():
     return
 
 def processing_designrumblefilter():
-    global bFilterDesigned,Wavefile1
+    global bFilterDesigned,Wavefile1,Filter1
+    
+    minedgefreq_Hz=40
+    maxedgefreq_Hz=160
+    defaultedgefreq_Hz=70
+    
+    # Prompt the user to select the passband edge frequency.
+    Filter1.m_passbandedgefrequency_Hz = simpledialog.askfloat("Rumble Filter Passband Edge Frequency", "What is the passband edge frequency (40 to 160 Hz)?", 
+                                   initialvalue=defaultedgefreq_Hz,
+                                   minvalue=minedgefreq_Hz, maxvalue=maxedgefreq_Hz)
+    
+    if None == Filter1.m_passbandedgefrequency_Hz:
+        return
+    
+    # Set the stopband frequency
+    Filter1.m_stopbandedgefrequency_Hz=Filter1.m_passbandedgefrequency_Hz/2
+    
+    # Set the attenuation
+    Filter1.m_stopbandattenuation_dB=66
+    
+    # Design the filter
+    Filter1.design_rumble_filter(Wavefile1.m_samplerate_Hz)
+    
+    # Plot the magntitude and phase responses
+    fig,(ax1)=plt.subplots(1,1)
+    ax1.plot(Filter1.m_w*Wavefile1.m_samplerate_Hz/np.pi/2,
+             20*np.log10(abs(Filter1.m_h)),
+                 color='black',
+                 label='Magnitude',
+                 alpha=0.8)
+
+    ax2=ax1.twinx()
+    ax2.plot(Filter1.m_w*Wavefile1.m_samplerate_Hz/np.pi/2,
+                 np.arctan2(np.imag(Filter1.m_h),np.real(Filter1.m_h))*180/np.pi,
+                 color='blue',
+                 label='Phase',
+                 alpha=0.8)   
+    ax2.yaxis.label.set_color('blue')
+    ax2.tick_params(axis='y', colors='blue')
+    ax2.spines['right'].set_color('blue')
+    
+    
+    plt.title(f"{Filter1.m_passbandedgefrequency_Hz:0.0f} Hz Rumble Filter ({Filter1.m_stopbandattenuation_dB:0.0f} dB/Octave)")
+    
+#    plt.title(str(Filter1.m_stopbandattenuation_dB)+' dB Per Octave Rumble Filter')
+    ax1.set_xlim([0,2*Filter1.m_passbandedgefrequency_Hz])
+    ax1.set_ylim([-80,1])
+    ax1.set_xlabel('Frequency (Hz)')
+    ax1.set_ylabel('Magnitude (dB)')
+    ax2.set_ylabel('Phase (Degrees)')
+    ax2.set_ylim([-180,180])
+    ax1.grid('both')
+
+    f = np.linspace(0,Wavefile1.m_samplerate_Hz)
+    outline_hp_pass_x = [Filter1.m_passbandedgefrequency_Hz, Filter1.m_passbandedgefrequency_Hz, max(f)]
+    outline_hp_pass_y = [-80     , -Filter1.m_ripple_dB  , Filter1.m_ripple_dB]
+    outline_hp_stop_x = [min(f)  , Filter1.m_stopbandedgefrequency_Hz, Filter1.m_stopbandedgefrequency_Hz]
+    outline_hp_stop_y = [-Filter1.m_stopbandattenuation_dB  , -Filter1.m_stopbandattenuation_dB  , -80]
+    ax1.plot (outline_hp_pass_x, outline_hp_pass_y,
+          color='black',
+          linestyle='dashed',
+          )
+    ax1.plot( outline_hp_stop_x, outline_hp_stop_y,
+         color='black',
+         linestyle='dashed'
+         )
+
+    fig.legend(loc='lower right')   
+    fig.show()
+    
     bFilterDesigned=TRUE
-    Wavefile1.design_rumble_filter()
+
     set_menu_states()
     return
 
