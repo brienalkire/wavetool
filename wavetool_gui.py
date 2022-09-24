@@ -95,6 +95,12 @@ def file_close():
     display_wavefile_info()
     set_menu_states()
 
+# This function is used for testing and development and can be called
+# from the File menu when the menu item is added.    
+def test_command():
+    print('Testing')
+    return
+
 #################### PROCESSING MENU FUNCTIONS ##########
 def processing_stereotomono():
     files = [('Wave Files', '*.wav'), 
@@ -254,8 +260,7 @@ def processing_applyfilter():
     return
 
 ################### FILTERING MENU FUNCTIONS ###########
-def dummycommand():
-    return
+
 
 #################### ABOUT MENU FUNCTIONS #############
 def help_about():
@@ -283,6 +288,13 @@ file_menu.add_command(
     label='Exit',
     command=root.destroy
 )
+
+# This is a menu item that can be used to run a routine for testing
+# and development.  Simply comment this out when not in use.
+file_menu.add_command(label='Test',
+                      command=test_command,
+                      state="normal")
+
 menubar.add_cascade(
     label="File",
     menu=file_menu
