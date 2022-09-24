@@ -14,8 +14,12 @@ from tkinter import messagebox
 from tkinter.filedialog import asksaveasfile
 from tkinter import filedialog as fd
 from tkinter import simpledialog
-import matplotlib.pyplot as plt
 import numpy as np
+
+import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, 
+                                               NavigationToolbar2Tk)
 
 # The custom package with the audio file tools and associated math
 import wavetool as wt
@@ -98,7 +102,34 @@ def file_close():
 # This function is used for testing and development and can be called
 # from the File menu when the menu item is added.    
 def test_command():
-    print('Testing')
+    
+    # Create a child window for the plot
+#    top= Toplevel(root)
+#    top.geometry("750x250")
+#    mytitle="My title"
+#    top.title(mytitle)
+    # the figure that will contain the plot
+    fig = Figure(figsize = (5, 5),
+                 dpi = 100)
+     # adding the subplot
+    plot1 = fig.add_subplot(111)    
+    # plotting the graph
+    x=np.linspace(0,20*np.pi)
+    y=np.sin(x)
+    plot1.plot(x,y)
+    plot1.set_xlabel("x",fontsize=12)
+    plot1.set_ylabel("y",fontsize=12,rotation=0,labelpad=30)
+    plot1.set_xlim([0,20*np.pi])
+    plot1.set_ylim([-1,1])
+    plot1.grid()
+    fig.set_tight_layout(tight=True)
+    # creating the Tkinter canvas
+    # containing the Matplotlib figure
+    canvas = FigureCanvasTkAgg(fig,
+                               master = root)  
+    canvas.draw()
+    # placing the canvas on the Tkinter window
+    canvas.get_tk_widget().pack()       
     return
 
 #################### PROCESSING MENU FUNCTIONS ##########
