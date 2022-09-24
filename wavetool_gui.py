@@ -104,10 +104,10 @@ def file_close():
 def test_command():
     
     # Create a child window for the plot
-#    top= Toplevel(root)
-#    top.geometry("750x250")
-#    mytitle="My title"
-#    top.title(mytitle)
+    top= Toplevel(root)
+    top.geometry("750x250")
+    mytitle="My title"
+    top.title(mytitle)
     # the figure that will contain the plot
     fig = Figure(figsize = (5, 5),
                  dpi = 100)
@@ -121,12 +121,13 @@ def test_command():
     plot1.set_ylabel("y",fontsize=12,rotation=0,labelpad=30)
     plot1.set_xlim([0,20*np.pi])
     plot1.set_ylim([-1,1])
+    ax2=plot1.twinx()
     plot1.grid()
     fig.set_tight_layout(tight=True)
     # creating the Tkinter canvas
     # containing the Matplotlib figure
     canvas = FigureCanvasTkAgg(fig,
-                               master = root)  
+                               master = top)  
     canvas.draw()
     # placing the canvas on the Tkinter window
     canvas.get_tk_widget().pack()       
@@ -234,15 +235,42 @@ def processing_designrumblefilter():
     # Design the filter
     Filter1.design_rumble_filter(Wavefile1.m_samplerate_Hz)
     
-    # Plot the magntitude and phase responses
-    fig,(ax1)=plt.subplots(1,1)
-    ax1.plot(Filter1.m_w*Wavefile1.m_samplerate_Hz/np.pi/2,
+    # PLOT THE FILTER
+    # Create a child window for the plot
+    top= Toplevel(root)
+    top.geometry("750x250")
+    top.title(f"{Filter1.m_passbandedgefrequency_Hz:0.0f} Hz Rumble Filter ({Filter1.m_stopbandattenuation_dB:0.0f} dB/Octave)")
+    # the figure that will contain the plot
+    fig = Figure(figsize = (5, 5),
+                 dpi = 100)
+    # adding the subplot
+    plot1 = fig.add_subplot(111)    
+    plot1.plot(Filter1.m_w*Wavefile1.m_samplerate_Hz/np.pi/2,
              20*np.log10(abs(Filter1.m_h)),
                  color='black',
                  label='Magnitude',
                  alpha=0.8)
+    plot1.set_xlim([0,2*Filter1.m_passbandedgefrequency_Hz])
+    plot1.set_ylim([-80,1])
+    plot1.set_xlabel('Frequency (Hz)')
+    plot1.set_ylabel('Magnitude (dB)')   
+    plot1.grid('both')
 
-    ax2=ax1.twinx()
+    f = np.linspace(0,Wavefile1.m_samplerate_Hz)
+    outline_hp_pass_x = [Filter1.m_passbandedgefrequency_Hz, Filter1.m_passbandedgefrequency_Hz, max(f)]
+    outline_hp_pass_y = [-80     , -Filter1.m_ripple_dB  , Filter1.m_ripple_dB]
+    outline_hp_stop_x = [min(f)  , Filter1.m_stopbandedgefrequency_Hz, Filter1.m_stopbandedgefrequency_Hz]
+    outline_hp_stop_y = [-Filter1.m_stopbandattenuation_dB  , -Filter1.m_stopbandattenuation_dB  , -80]
+    plot1.plot (outline_hp_pass_x, outline_hp_pass_y,
+          color='black',
+          linestyle='dashed',
+          )
+    plot1.plot( outline_hp_stop_x, outline_hp_stop_y,
+         color='black',
+         linestyle='dashed'
+         )        
+    
+    ax2=plot1.twinx()
     ax2.plot(Filter1.m_w*Wavefile1.m_samplerate_Hz/np.pi/2,
                  np.arctan2(np.imag(Filter1.m_h),np.real(Filter1.m_h))*180/np.pi,
                  color='blue',
@@ -252,40 +280,23 @@ def processing_designrumblefilter():
     ax2.tick_params(axis='y', colors='blue')
     ax2.spines['right'].set_color('blue')
     
-    
-    plt.title(f"{Filter1.m_passbandedgefrequency_Hz:0.0f} Hz Rumble Filter ({Filter1.m_stopbandattenuation_dB:0.0f} dB/Octave)")
-    
-#    plt.title(str(Filter1.m_stopbandattenuation_dB)+' dB Per Octave Rumble Filter')
-    ax1.set_xlim([0,2*Filter1.m_passbandedgefrequency_Hz])
-    ax1.set_ylim([-80,1])
-    ax1.set_xlabel('Frequency (Hz)')
-    ax1.set_ylabel('Magnitude (dB)')
     ax2.set_ylabel('Phase (Degrees)')
     ax2.set_ylim([-180,180])
-    ax1.grid('both')
 
-    f = np.linspace(0,Wavefile1.m_samplerate_Hz)
-    outline_hp_pass_x = [Filter1.m_passbandedgefrequency_Hz, Filter1.m_passbandedgefrequency_Hz, max(f)]
-    outline_hp_pass_y = [-80     , -Filter1.m_ripple_dB  , Filter1.m_ripple_dB]
-    outline_hp_stop_x = [min(f)  , Filter1.m_stopbandedgefrequency_Hz, Filter1.m_stopbandedgefrequency_Hz]
-    outline_hp_stop_y = [-Filter1.m_stopbandattenuation_dB  , -Filter1.m_stopbandattenuation_dB  , -80]
-    ax1.plot (outline_hp_pass_x, outline_hp_pass_y,
-          color='black',
-          linestyle='dashed',
-          )
-    ax1.plot( outline_hp_stop_x, outline_hp_stop_y,
-         color='black',
-         linestyle='dashed'
-         )
-
-    fig.legend(loc='lower right')   
-    fig.show()
+    fig.set_tight_layout(tight=True)
+    # creating the Tkinter canvas
+    # containing the Matplotlib figure
+    canvas = FigureCanvasTkAgg(fig,
+                               master = top)  
+    canvas.draw()
+    # placing the canvas on the Tkinter window
+    canvas.get_tk_widget().pack()       
     
     bFilterDesigned=TRUE
-
-    set_menu_states()
+    
     return
-
+    #############
+    
 def processing_applyfilter():
     print('processing_applyfilter')
     return
