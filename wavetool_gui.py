@@ -212,7 +212,7 @@ def processing_midsideprocessing():
     return
 
 def processing_designrumblefilter():
-    global bFilterDesigned,Wavefile1,Filter1
+    global bFilterDesigned,Wavefile1,Filter1,filename_open1
     
     minedgefreq_Hz=40
     maxedgefreq_Hz=160
@@ -291,6 +291,28 @@ def processing_designrumblefilter():
     canvas.draw()
     # placing the canvas on the Tkinter window
     canvas.get_tk_widget().pack()       
+    
+    # Ask the user if they want to apply the filter or cancel.
+    answer = messagebox.askyesno("Apply Filter?",
+                                 "Would you like to apply the filter? Answer 'yes' to apply the filter and save the results or to'no' to cancel.")
+
+    # If yes, apply the filter and save
+    if True == answer:
+        files = [('Wave Files', '*.wav'), 
+             ('All Files', '*.*')]
+        filename_filtered=Wavefile1.append_filename_tag(filename_open1,'_Filtered')
+        filename_filtered = fd.asksaveasfilename(filetypes = files, 
+                         defaultextension = files,
+                         initialfile=filename_filtered,
+                         title='Filename for Filtered Wavefile')
+        if 0 < len(filename_filtered):
+            Wavefile1.write_wavefile(
+                filename_filtered,
+                Wavefile1.m_samplerate_Hz,
+                Wavefile1.m_data)
+    
+    # Close the window with the plot of the filter
+    top.destroy()
     
     bFilterDesigned=TRUE
     
