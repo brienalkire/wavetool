@@ -59,14 +59,14 @@ OUTPUT:
     numpy array of filtered data (same dimensions as input)."""
         # Apply the filter to channel 1
         output_data=input_data
-        print('copied data. shape: ' + str(output_data.shape))
-        output_data[:,0]=signal.lfilter(self.m_b,self.m_a,input_data[:,0])
-        print('copied one channel')
-        # Apply the filter to channel 2 if applicable
-        if 1 < len(input_data.shape):
-            output_data[:,1]=signal.lfilter(self.m_b,self.m_a,input_data[:,1])
-        return output_data   
 
+        if 1 == len(input_data.shape):
+            output_data=signal.lfilter(self.m_b,self.m_a,input_data).astype(input_data.dtype)
+        else:
+            output_data[:,0]=signal.lfilter(self.m_b,self.m_a,input_data[:,0]).astype(input_data.dtype)
+            output_data[:,1]=signal.lfilter(self.m_b,self.m_a,input_data[:,1]).astype(input_data.dtype)
+        return output_data
+    
 class AudioFile:
     """NAME\n\tAudioFile\n
 DESCRIPTION\n
@@ -112,7 +112,9 @@ INPUTS\n
     arg2: sample rate in Hertz
     arg3: numpy array(s) of data to be written.
 OUTPUTS: None."""
-        wavfile.write(filename,samplerate_Hz,data)
+        wavfile.write(filename,
+                      samplerate_Hz,
+                      data.astype(data.dtype))
         
     # Takes stereo wavefile data and writes it to two mono wavefiles.
     def stereo_to_mono(self,filename_left: str,filename_right: str)->None:

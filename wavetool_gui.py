@@ -25,7 +25,7 @@ from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,
 import wavetool as wt
 
 # Constants and global variables
-strRevHistory='Wavetool, by Brien Alkire. Revision 13 Sep 2022.'
+strRevHistory='WaveTool, by Brien Alkire. Revision 13 Sep 2022.'
 bStereoFileOpen=FALSE
 bMonoFileOpen=FALSE
 bFilterDesigned=FALSE
@@ -311,7 +311,7 @@ def processing_rumblefilter():
             Wavefile1.write_wavefile(
                 filename_filtered,
                 Wavefile1.m_samplerate_Hz,
-                filtered_data)
+                filtered_data.astype(Wavefile1.m_data.dtype))
     
     # Close the window with the plot of the filter
     top.destroy()
@@ -353,9 +353,9 @@ file_menu.add_command(
 
 # This is a menu item that can be used to run a routine for testing
 # and development.  Simply comment this out when not in use.
-file_menu.add_command(label='Test',
-                      command=test_command,
-                      state="normal")
+#file_menu.add_command(label='Test',
+#                      command=test_command,
+#                      state="normal")
 
 menubar.add_cascade(
     label="File",
