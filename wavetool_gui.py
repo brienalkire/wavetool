@@ -25,7 +25,7 @@ from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,
 import wavetool as wt
 
 # Constants and global variables
-strRevHistory='WaveTool, by Brien Alkire. Revision 13 Sep 2022.'
+strRevHistory='WaveTool, by Brien Alkire. Revision 30 Sep 2022.'
 bStereoFileOpen=FALSE
 bMonoFileOpen=FALSE
 bFilterDesigned=FALSE
@@ -208,7 +208,58 @@ def processing_monotostereo():
     return
 
 def processing_midsideprocessing():
-    print('processing_midsideprocessing')
+    global Wavefile1, filename_open1
+    
+    # Create the mid and side channel wavefile objects
+    Wavefile_mid = wt.AudioFile()
+    Wavefile_mid.m_samplerate_Hz=Wavefile1.m_samplerate_Hz
+    Wavefile_mid.m_numchannels=1
+    Wavefile_mid.m_duration_s=Wavefile1.m_duration_s
+    Wavefile_mid.m_numsamples=Wavefile1.m_numsamples
+    Wavefile_side = wt.AudioFile()
+    Wavefile_side.m_samplerate_Hz=Wavefile1.m_samplerate_Hz
+    Wavefile_side.m_numchannels=2
+    Wavefile_side.m_duration_s=Wavefile1.m_duration_s
+    Wavefile_side.m_numsamples=Wavefile1.m_numsamples    
+    Wavefile_side.m_data=Wavefile1.m_data.astype(Wavefile1.m_data.dtype)
+    
+    # Ask the user if the mid channel is the left and side right or vice versa
+    mid_is_left = messagebox.askyesno("Mid and Side Channel Selection",
+                                 "Is the left channel (channel 1) the mid channel and right channel (channel 2) the side channel? Answer 'no' if it is the reverse.")    
+    
+    # Process the data
+    if True == mid_is_left:
+        Wavefile_mid.m_data=Wavefile1.m_data[:,0].astype(Wavefile1.m_data.dtype) 
+        Wavefile_side.m_data[:,0]=(-1*Wavefile_side.m_data[:,1]).astype(Wavefile1.m_data.dtype)
+    else:
+        Wavefile_mid.m_data=Wavefile1.m_data[:,1].astype(Wavefile1.m_data.dtype) 
+        Wavefile_side.m_data[:,1]=(-1*Wavefile_side.m_data[:,0]).astype(Wavefile1.m_data.dtype)
+    
+    # Save the mid data
+    files = [('Wave Files', '*.wav'), 
+             ('All Files', '*.*')]
+    filename_mid=Wavefile1.append_filename_tag(filename_open1, "_mid")
+    filename_mid = fd.asksaveasfilename(filetypes = files, 
+                         defaultextension = files,
+                         initialfile=filename_mid,
+                         title='Filename for Mid-channel Mono Wavefile')
+    if 0 < len(filename_mid):
+        Wavefile_mid.write_wavefile(
+                filename_mid,
+                Wavefile_mid.m_samplerate_Hz,
+                Wavefile_mid.m_data.astype(Wavefile_mid.m_data.dtype))
+    
+    filename_side=Wavefile1.append_filename_tag(filename_open1, "_side")
+    filename_side = fd.asksaveasfilename(filetypes = files, 
+                         defaultextension = files,
+                         initialfile=filename_side,
+                         title='Filename for Side Data Stereo Wavefile')
+    if 0 < len(filename_side):
+        Wavefile_side.write_wavefile(
+                filename_side,
+                Wavefile_side.m_samplerate_Hz,
+                Wavefile_side.m_data.astype(Wavefile_side.m_data.dtype))    # Save the side data
+
     return
 
 def processing_rumblefilter():
