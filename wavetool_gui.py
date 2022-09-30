@@ -211,7 +211,7 @@ def processing_midsideprocessing():
     print('processing_midsideprocessing')
     return
 
-def processing_designrumblefilter():
+def processing_rumblefilter():
     global bFilterDesigned,Wavefile1,Filter1,filename_open1
     
     minedgefreq_Hz=40
@@ -298,6 +298,8 @@ def processing_designrumblefilter():
 
     # If yes, apply the filter and save
     if True == answer:
+        filtered_data=Filter1.apply_filter(Wavefile1.m_data)
+        
         files = [('Wave Files', '*.wav'), 
              ('All Files', '*.*')]
         filename_filtered=Wavefile1.append_filename_tag(filename_open1,'_Filtered')
@@ -309,7 +311,7 @@ def processing_designrumblefilter():
             Wavefile1.write_wavefile(
                 filename_filtered,
                 Wavefile1.m_samplerate_Hz,
-                Wavefile1.m_data)
+                filtered_data)
     
     # Close the window with the plot of the filter
     top.destroy()
@@ -319,10 +321,6 @@ def processing_designrumblefilter():
     return
     #############
     
-def processing_applyfilter():
-    print('processing_applyfilter')
-    return
-
 ################### FILTERING MENU FUNCTIONS ###########
 
 
@@ -388,12 +386,10 @@ filtering_menu=Menu(
     processing_menu,
     tearoff=0)
 
-filtering_menu.add_command(label='Design Rumble Filter',
-                           command=processing_designrumblefilter,
+filtering_menu.add_command(label='Rumble Filter',
+                           command=processing_rumblefilter,
                            state=DISABLED)
-filtering_menu.add_command(label='Apply Filter',
-                           command=processing_applyfilter,
-                           state=DISABLED)
+
 processing_menu.add_cascade(label='Filtering',
                             menu=filtering_menu)
 
@@ -443,6 +439,7 @@ def set_menu_states():
         file_menu.entryconfig(0,state=DISABLED)
         file_menu.entryconfig(1,state='normal')    
         processing_menu.entryconfig(3,state='normal')
+        filtering_menu.entryconfig(0,state='normal')
     if TRUE == bStereoFileOpen and FALSE==bMonoFileOpen:
         processing_menu.entryconfig(0,state='normal')
         processing_menu.entryconfig(2,state='normal')
@@ -455,9 +452,6 @@ def set_menu_states():
         processing_menu.entryconfig(1,state=DISABLED)
         processing_menu.entryconfig(2,state=DISABLED)
         processing_menu.entryconfig(3,state=DISABLED)
-    if FALSE == bFilterDesigned:
-        filtering_menu.entryconfig(0,state='normal')
-        filtering_menu.entryconfig(1,state=DISABLED)
     else:
         filtering_menu.entryconfig(0,state='normal')
         filtering_menu.entryconfig(1,state='normal')

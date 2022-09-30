@@ -47,7 +47,25 @@ OUTPUTS: None."""
         self.m_w,self.m_h=signal.freqz(self.m_b,self.m_a,2**16)    
 
         return
- 
+
+    # Apply filter
+    def apply_filter(self,input_data):
+        """NAME\n\tapply_filter\n
+DESCRIPTION\n
+Applies the current (member) filter.
+INPUTS: 
+    arg1: numpy array of data to be filtered (may be n-by-1 if mono or n-by-2 if stereo)
+OUTPUT:
+    numpy array of filtered data (same dimensions as input)."""
+        # Apply the filter to channel 1
+        output_data=input_data
+        print('copied data. shape: ' + str(output_data.shape))
+        output_data[:,0]=signal.lfilter(self.m_b,self.m_a,input_data[:,0])
+        print('copied one channel')
+        # Apply the filter to channel 2 if applicable
+        if 1 < len(input_data.shape):
+            output_data[:,1]=signal.lfilter(self.m_b,self.m_a,input_data[:,1])
+        return output_data   
 
 class AudioFile:
     """NAME\n\tAudioFile\n
@@ -132,7 +150,6 @@ OUTPUTS: None."""
         self.write_wavefile(filename_stereo,
                        samplerate_Hz,
                        data_stereo)
-
 
     # Append a tag to a filename (e.g., '_left')
     def append_filename_tag(self,filename: str,tag: str)->str:
